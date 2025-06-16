@@ -1,6 +1,7 @@
 using ImageMetadataParser.Components;
 using ImageMetadataParser.Data;
 using ImageMetadataParser.Services;
+using ImageMetadataParser.Services.Parsers;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,8 @@ builder.Services.AddScoped<ImageUploadService>();
 builder.Services.AddScoped<CsvExportService>();
 builder.Services.AddScoped<KeywordService>();
 builder.Services.AddScoped<AiImageAnalyzer>();
+
+builder.Services.AddScoped<IImageParser, ExifParser>();
 
 builder.Services.AddHttpClient();
 

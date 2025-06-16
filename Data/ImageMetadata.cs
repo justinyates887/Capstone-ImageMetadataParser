@@ -170,10 +170,8 @@ namespace ImageMetadataParser.Data
             get
             {
                 var settings = new List<string>();
-
                 if (Aperture.HasValue)
                     settings.Add($"f/{Aperture:F1}");
-
                 if (ShutterSpeed.HasValue)
                 {
                     if (ShutterSpeed >= 1)
@@ -181,14 +179,11 @@ namespace ImageMetadataParser.Data
                     else
                         settings.Add($"1/{Math.Round(1 / ShutterSpeed.Value)}s");
                 }
-
                 if (Iso.HasValue)
                     settings.Add($"ISO {Iso}");
-
                 if (FocalLength.HasValue)
                     settings.Add($"{FocalLength}mm");
-
-                return settings.Any() ? string.Join(" • ") : null;
+                return settings.Any() ? string.Join(" • ", settings) : null;
             }
         }
 

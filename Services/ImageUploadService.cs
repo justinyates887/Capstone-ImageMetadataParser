@@ -42,29 +42,33 @@ namespace ImageMetadataParser.Services
 
             try
             {
-                using var stream = file.OpenReadStream(maxAllowedSize: 52428800); // 50MB
+                // Copy the browser stream to a seekable MemoryStream
+                using var browserStream = file.OpenReadStream(maxAllowedSize: 52428800); // 50MB
+                using var memoryStream = new MemoryStream();
+                await browserStream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
 
                 // Calculate file hash for deduplication
-                metadata.FileHash = await CalculateFileHashAsync(stream);
-                stream.Position = 0;
+                metadata.FileHash = await CalculateFileHashAsync(memoryStream);
+                memoryStream.Position = 0;
 
                 // Extract basic image dimensions
-                await ExtractBasicImageInfoAsync(metadata, stream);
-                stream.Position = 0;
+                await ExtractBasicImageInfoAsync(metadata, memoryStream);
+                memoryStream.Position = 0;
 
                 // Parse metadata using available parsers
-                await ExtractMetadataAsync(metadata, stream, file.Name);
-                stream.Position = 0;
+                await ExtractMetadataAsync(metadata, memoryStream, file.Name);
+                memoryStream.Position = 0;
 
                 // Generate AI analysis
-                await EnrichWithAiAnalysisAsync(metadata, stream);
+                await EnrichWithAiAnalysisAsync(metadata, memoryStream);
 
                 // Process keywords
                 var keywords = _keywordService.ExtractKeywordsFromMetadata(metadata);
                 metadata.Keywords = string.Join(", ", keywords);
 
-                // Save to database
-                await SaveToDatabaseAsync(metadata);
+                // TODO: Save to database when implemented
+                // await SaveToDatabaseAsync(metadata);
 
                 metadata.MarkAsCompleted();
                 _logger.LogInformation("Successfully processed image: {FileName}", file.Name);
@@ -120,7 +124,7 @@ namespace ImageMetadataParser.Services
                 {
                     if (parser.ValidateFile(fileName, stream))
                     {
-                        stream.Position = 0;
+                        stream.Position = 0; // Now this works because it's a MemoryStream
                         var extractedMetadata = await parser.ParseMetadataAsync(stream, fileName);
 
                         // Merge extracted metadata

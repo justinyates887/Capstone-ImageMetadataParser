@@ -1,10 +1,8 @@
 ﻿@page "/upload"
+@rendermode InteractiveServer
+@namespace ImageMetadataParser.Pages
 @using ImageMetadataParser.Data
 @using ImageMetadataParser.Services
-@using System.Web
-@inject ImageUploadService UploadService
-@inject CsvExportService CsvExportService
-@inject IJSRuntime JSRuntime
 
 <PageTitle>Image Metadata Parser</PageTitle>
 
@@ -19,10 +17,9 @@
             </p>
         </div>
     </div>
-
-    <!-- Upload Section -->
+    
     <div class="row justify-content-center">
-        <div class="col-lg-8 col-xl-6">
+        <div class="col-lg-8">
             <div class="card shadow-lg border-0">
                 <div class="card-header bg-primary text-white">
                     <h4 class="card-title mb-0">
@@ -30,47 +27,43 @@
                     </h4>
                 </div>
                 <div class="card-body p-4">
-                    @if (!isProcessing)
+                    @if (!IsProcessing)
                     {
-                        <!-- File Input -->
-                        <div class="upload-area @(isDragOver ? "drag-over" : "")" 
-                             @ondragover="HandleDragOver" 
+                        <div class="upload-area @(IsDragOver ? "drag-over" : "")"
+                             @ondragover="HandleDragOver"
                              @ondragover:preventDefault="true"
                              @ondragleave="HandleDragLeave"
                              @ondrop="HandleDrop"
                              @ondrop:preventDefault="true"
-                             @onclick="TriggerFileInput">
-                            
-                            <InputFile id="fileInput" @ref="fileInputElement" OnChange="HandleFileSelection" multiple 
-                                      accept=".jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.tiff,.tif,.ico,.avif,.heic,.heif"
-                                      style="display: none;" />
-                            
+                             style="border: 2px dashed #dee2e6; border-radius: 8px; padding: 2rem; text-align: center; background-color: #f8f9fa;">
+
                             <div class="text-center">
-                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #6c757d;"></i>
                                 <h5 class="mt-3">Drop images here or click to browse</h5>
                                 <p class="text-muted">
                                     Supports: JPEG, PNG, GIF, BMP, WebP, SVG, TIFF, ICO, AVIF, HEIC<br>
                                     Maximum 10 files • 50MB per file
                                 </p>
-                                <button type="button" class="btn btn-outline-primary">
-                                    <i class="fas fa-folder-open me-2"></i>Browse Files
-                                </button>
+                                
+                                <InputFile OnChange="HandleFileSelection" multiple 
+                                          accept=".jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.tiff,.tif,.ico,.avif,.heic,.heif"
+                                          class="form-control" />
                             </div>
                         </div>
-
-                        @if (selectedFiles?.Count > 0)
+                
+                        @if (SelectedFiles?.Count > 0)
                         {
                             <div class="mt-4">
-                                <h6>Selected Files (@selectedFiles.Count)</h6>
+                                <h6>Selected Files (@SelectedFiles.Count)</h6>
                                 <div class="selected-files">
-                                    @foreach (var file in selectedFiles)
+                                    @foreach (var file in SelectedFiles)
                                     {
-                                        <div class="file-item">
+                                        <div class="file-item mb-2 p-2 border rounded">
                                             <div class="d-flex align-items-center">
                                                 <i class="fas fa-image text-primary me-2"></i>
-                                                <span class="file-name">@file.Name</span>
-                                                <span class="file-size ms-auto">@FormatFileSize(file.Size)</span>
-                                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" @onclick="() => RemoveFile(file)">
+                                                <span class="file-name flex-grow-1">@file.Name</span>
+                                                <span class="file-size me-2">@FormatFileSize(file.Size)</span>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => RemoveFile(file)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -78,9 +71,9 @@
                                     }
                                 </div>
                                 
-                                <div class="mt-3 d-grid">
+                                <div class="d-grid mt-3">
                                     <button type="button" class="btn btn-primary btn-lg" @onclick="ProcessFiles">
-                                        <i class="fas fa-play me-2"></i>Process Images (@selectedFiles.Count)
+                                        <i class="fas fa-play me-2"></i>Process Images (@SelectedFiles.Count)
                                     </button>
                                 </div>
                             </div>
@@ -88,7 +81,6 @@
                     }
                     else
                     {
-                        <!-- Processing State -->
                         <div class="text-center py-4">
                             <div class="spinner-border text-primary mb-3" role="status">
                                 <span class="visually-hidden">Processing...</span>
@@ -96,16 +88,16 @@
                             <h5>Processing Images...</h5>
                             <p class="text-muted">Extracting metadata and analyzing content</p>
                             
-                            @if (processingProgress > 0)
+                            @if (ProcessingProgress > 0)
                             {
                                 <div class="progress mt-3">
                                     <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                                         role="progressbar" style="width: @(processingProgress)%">
-                                        @processingProgress%
+                                         role="progressbar" style="width: @(ProcessingProgress)%">
+                                        @ProcessingProgress%
                                     </div>
                                 </div>
                                 <small class="text-muted mt-2 d-block">
-                                    Processing file @currentFileIndex of @totalFiles
+                                    Processing file @CurrentFileIndex of @TotalFiles
                                 </small>
                             }
                         </div>
@@ -114,15 +106,15 @@
             </div>
         </div>
     </div>
-
-    @if (processedImages?.Count > 0)
+    
+    @if (ProcessedImages?.Count > 0)
     {
         <div class="row mt-5">
             <div class="col-12">
                 <div class="card shadow-lg border-0">
                     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                         <h4 class="card-title mb-0">
-                            <i class="fas fa-check-circle me-2"></i>Processing Results (@processedImages.Count images)
+                            <i class="fas fa-check-circle me-2"></i>Processing Results (@ProcessedImages.Count images)
                         </h4>
                         <div>
                             <button type="button" class="btn btn-light btn-sm me-2" @onclick="ExportToCsv">
@@ -134,14 +126,14 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <!-- Results Filter -->
+                        <!-- Search and Filter Controls -->
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <input type="text" class="form-control" placeholder="Search by filename..." 
-                                       @bind="searchFilter" @bind:event="oninput" />
+                                       @bind="SearchFilter" @bind:event="oninput" />
                             </div>
                             <div class="col-md-3">
-                                <select class="form-select" @bind="selectedMetadataType">
+                                <select class="form-select" @bind="SelectedMetadataType">
                                     <option value="">All Types</option>
                                     <option value="EXIF">Has EXIF</option>
                                     <option value="XMP">Has XMP</option>
@@ -149,7 +141,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <select class="form-select" @bind="sortBy">
+                                <select class="form-select" @bind="SortBy">
                                     <option value="CreatedAt">Sort by Upload Time</option>
                                     <option value="FileName">Sort by Filename</option>
                                     <option value="FileSize">Sort by File Size</option>
@@ -158,12 +150,11 @@
                             </div>
                             <div class="col-md-2">
                                 <button type="button" class="btn btn-outline-secondary w-100" @onclick="ToggleSortDirection">
-                                    <i class="fas fa-sort-amount-@(sortDescending ? "down" : "up")"></i>
+                                    <i class="fas fa-sort-amount-@(SortDescending ? "down" : "up")"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Results Table -->
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead class="table-dark">
@@ -174,8 +165,6 @@
                                         <th style="width: 120px;">Dimensions</th>
                                         <th style="width: 150px;">Date Taken</th>
                                         <th style="width: 200px;">Camera</th>
-                                        <th style="width: 150px;">Settings</th>
-                                        <th style="width: 120px;">Location</th>
                                         <th style="width: 100px;">Status</th>
                                         <th style="width: 120px;">Actions</th>
                                     </tr>
@@ -246,30 +235,6 @@
                                                 }
                                             </td>
                                             <td>
-                                                @if (!string.IsNullOrEmpty(image.CameraSettings))
-                                                {
-                                                    <small class="text-muted">@image.CameraSettings</small>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(image.LocationName))
-                                                {
-                                                    <small class="text-muted" title="@image.GpsCoordinates">@image.LocationName</small>
-                                                }
-                                                else if (!string.IsNullOrEmpty(image.GpsCoordinates))
-                                                {
-                                                    <small class="text-muted">@image.GpsCoordinates</small>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
-                                            </td>
-                                            <td>
                                                 @if (image.ProcessingStatus == "Completed")
                                                 {
                                                     <span class="badge bg-success">
@@ -290,19 +255,11 @@
                                                 }
                                             </td>
                                             <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <button type="button" class="btn btn-outline-primary" 
-                                                            data-bs-toggle="modal" data-bs-target="#metadataModal"
-                                                            @onclick="() => ShowMetadataDetails(image)">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    @if (!string.IsNullOrEmpty(image.Keywords))
-                                                    {
-                                                        <button type="button" class="btn btn-outline-info" title="@image.Keywords">
-                                                            <i class="fas fa-tags"></i>
-                                                        </button>
-                                                    }
-                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                        data-bs-toggle="modal" data-bs-target="#metadataModal"
+                                                        @onclick="() => ShowMetadataDetails(image)">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
                                             </td>
                                         </tr>
                                         index++;
@@ -310,57 +267,27 @@
                                 </tbody>
                             </table>
                         </div>
-
-                        @if (!FilteredImages.Any())
-                        {
-                            <div class="text-center py-4">
-                                <i class="fas fa-search text-muted" style="font-size: 3rem;"></i>
-                                <h5 class="mt-3 text-muted">No results match your filter</h5>
-                                <p class="text-muted">Try adjusting your search criteria</p>
-                            </div>
-                        }
-
-                        @if (FilteredImages.Count() > pageSize)
-                        {
-                            <div class="d-flex justify-content-center mt-4">
-                                <nav>
-                                    <ul class="pagination">
-                                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                                            <button class="page-link" @onclick="() => ChangePage(currentPage - 1)">Previous</button>
-                                        </li>
-                                        
-                                        @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
-                                        {
-                                            <li class="page-item @(i == currentPage ? "active" : "")">
-                                                <button class="page-link" @onclick="() => ChangePage(i)">@i</button>
-                                            </li>
-                                        }
-                                        
-                                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                                            <button class="page-link" @onclick="() => ChangePage(currentPage + 1)">Next</button>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        }
                     </div>
                 </div>
             </div>
         </div>
+    }
 
-        <!-- Metadata Details Modal -->
+    <!-- Metadata Details Modal -->
+    @if (ProcessedImages?.Count > 0)
+    {
         <div class="modal fade" id="metadataModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
                             <i class="fas fa-info-circle me-2"></i>
-                            Metadata Details - @selectedImageForModal?.FileName
+                            Metadata Details - @SelectedImageForModal?.FileName
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        @if (selectedImageForModal != null)
+                        @if (SelectedImageForModal != null)
                         {
                             <ul class="nav nav-tabs mb-3" role="tablist">
                                 <li class="nav-item">
@@ -384,31 +311,31 @@
                                         <div class="col-md-6">
                                             <strong>File Information:</strong>
                                             <ul class="list-unstyled mt-2">
-                                                <li><strong>Size:</strong> @selectedImageForModal.FileSize</li>
-                                                <li><strong>Type:</strong> @selectedImageForModal.MimeType</li>
-                                                <li><strong>Dimensions:</strong> @selectedImageForModal.Dimensions</li>
-                                                <li><strong>Date Taken:</strong> @selectedImageForModal.DateTaken?.ToString("yyyy-MM-dd HH:mm:ss")</li>
+                                                <li><strong>Size:</strong> @SelectedImageForModal.FileSize</li>
+                                                <li><strong>Type:</strong> @SelectedImageForModal.MimeType</li>
+                                                <li><strong>Dimensions:</strong> @SelectedImageForModal.Dimensions</li>
+                                                <li><strong>Date Taken:</strong> @SelectedImageForModal.DateTaken?.ToString("yyyy-MM-dd HH:mm:ss")</li>
                                             </ul>
                                         </div>
                                         <div class="col-md-6">
-                                            @if (!string.IsNullOrEmpty(selectedImageForModal.CameraMake) || !string.IsNullOrEmpty(selectedImageForModal.CameraModel))
+                                            @if (!string.IsNullOrEmpty(SelectedImageForModal.CameraMake) || !string.IsNullOrEmpty(SelectedImageForModal.CameraModel))
                                             {
                                                 <strong>Camera Information:</strong>
                                                 <ul class="list-unstyled mt-2">
-                                                    <li><strong>Make:</strong> @selectedImageForModal.CameraMake</li>
-                                                    <li><strong>Model:</strong> @selectedImageForModal.CameraModel</li>
-                                                    <li><strong>Lens:</strong> @selectedImageForModal.LensInfo</li>
-                                                    <li><strong>Settings:</strong> @selectedImageForModal.CameraSettings</li>
+                                                    <li><strong>Make:</strong> @SelectedImageForModal.CameraMake</li>
+                                                    <li><strong>Model:</strong> @SelectedImageForModal.CameraModel</li>
+                                                    <li><strong>Lens:</strong> @SelectedImageForModal.LensInfo</li>
+                                                    <li><strong>Settings:</strong> @SelectedImageForModal.CameraSettings</li>
                                                 </ul>
                                             }
                                         </div>
                                     </div>
                                     
-                                    @if (!string.IsNullOrEmpty(selectedImageForModal.Keywords))
+                                    @if (!string.IsNullOrEmpty(SelectedImageForModal.Keywords))
                                     {
                                         <div class="mt-3">
                                             <strong>Keywords:</strong><br>
-                                            @foreach (var keyword in selectedImageForModal.KeywordList)
+                                            @foreach (var keyword in SelectedImageForModal.KeywordList)
                                             {
                                                 <span class="badge bg-secondary me-1">@keyword</span>
                                             }
@@ -418,10 +345,10 @@
 
                                 <!-- EXIF Tab -->
                                 <div class="tab-pane fade" id="exif-tab">
-                                    @if (!string.IsNullOrEmpty(selectedImageForModal.ExifData))
+                                    @if (!string.IsNullOrEmpty(SelectedImageForModal.ExifData))
                                     {
                                         <div class="metadata-display">
-                                            @((MarkupString)FormatMetadataForDisplay(selectedImageForModal.ExifData))
+                                            @((MarkupString)FormatMetadataForDisplay(SelectedImageForModal.ExifData))
                                         </div>
                                     }
                                     else
@@ -435,10 +362,10 @@
 
                                 <!-- XMP Tab -->
                                 <div class="tab-pane fade" id="xmp-tab">
-                                    @if (!string.IsNullOrEmpty(selectedImageForModal.XmpData))
+                                    @if (!string.IsNullOrEmpty(SelectedImageForModal.XmpData))
                                     {
                                         <div class="metadata-display">
-                                            @((MarkupString)FormatMetadataForDisplay(selectedImageForModal.XmpData))
+                                            @((MarkupString)FormatMetadataForDisplay(SelectedImageForModal.XmpData))
                                         </div>
                                     }
                                     else
@@ -452,10 +379,10 @@
 
                                 <!-- AI Analysis Tab -->
                                 <div class="tab-pane fade" id="ai-tab">
-                                    @if (!string.IsNullOrEmpty(selectedImageForModal.AiAnalysis))
+                                    @if (!string.IsNullOrEmpty(SelectedImageForModal.AiAnalysis))
                                     {
                                         <div class="ai-analysis-display">
-                                            <p>@selectedImageForModal.AiAnalysis</p>
+                                            <p>@SelectedImageForModal.AiAnalysis</p>
                                         </div>
                                     }
                                     else
@@ -471,7 +398,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" @onclick="() => CopyMetadataToClipboard(selectedImageForModal)">
+                        <button type="button" class="btn btn-primary" @onclick="() => CopyMetadataToClipboard(SelectedImageForModal)">
                             <i class="fas fa-copy me-1"></i>Copy Metadata
                         </button>
                     </div>
@@ -480,442 +407,3 @@
         </div>
     }
 </div>
-
-<style>
-    .upload-area {
-        border: 2px dashed #dee2e6;
-        border-radius: 10px;
-        padding: 3rem 2rem;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background-color: #f8f9fa;
-    }
-
-    .upload-area:hover, .upload-area.drag-over {
-        border-color: #0d6efd;
-        background-color: #e7f3ff;
-        transform: translateY(-2px);
-    }
-
-    .upload-icon {
-        font-size: 3rem;
-        color: #6c757d;
-        margin-bottom: 1rem;
-    }
-
-    .upload-area:hover .upload-icon, .upload-area.drag-over .upload-icon {
-        color: #0d6efd;
-    }
-
-    .selected-files {
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .file-item {
-        padding: 0.75rem;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        margin-bottom: 0.5rem;
-        background-color: #f8f9fa;
-    }
-
-    .file-name {
-        font-weight: 500;
-        flex-grow: 1;
-    }
-
-    .file-size {
-        font-size: 0.875rem;
-        color: #6c757d;
-    }
-
-    .metadata-display {
-        max-height: 400px;
-        overflow-y: auto;
-        font-size: 0.875rem;
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.375rem;
-    }
-
-    .ai-analysis-display {
-        font-size: 0.95rem;
-        line-height: 1.6;
-    }
-
-    .progress {
-        height: 8px;
-    }
-
-    .table th {
-        border-top: none;
-        font-weight: 600;
-        font-size: 0.875rem;
-    }
-
-    .table td {
-        vertical-align: middle;
-        font-size: 0.875rem;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: rgba(0, 123, 255, 0.05);
-    }
-
-    .btn-group-sm .btn {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-    }
-
-    @@media (max-width: 768px) {
-        .upload-area {
-            padding: 2rem 1rem;
-        }
-        
-        .upload-icon {
-            font-size: 2rem;
-        }
-    }
-</style>
-
-@code {
-    private const int MAX_FILES_UI = 10;
-    private const int MAX_FILE_SIZE_BYTES = 52428800; // 50MB
-    
-    private InputFile? fileInputElement;
-    private List<IBrowserFile>? selectedFiles = new();
-    private List<ImageMetadata>? processedImages = new();
-    private ImageMetadata? selectedImageForModal;
-    
-    private bool isProcessing = false;
-    private bool isDragOver = false;
-    private int processingProgress = 0;
-    private int currentFileIndex = 0;
-    private int totalFiles = 0;
-    
-    // Filtering and sorting
-    private string searchFilter = string.Empty;
-    private string selectedMetadataType = string.Empty;
-    private string sortBy = "CreatedAt";
-    private bool sortDescending = true;
-    
-    // Pagination
-    private int currentPage = 1;
-    private int pageSize = 25;
-    private int totalPages => (int)Math.Ceiling((double)FilteredImages.Count() / pageSize);
-
-    private IEnumerable<ImageMetadata> FilteredImages
-    {
-        get
-        {
-            var results = processedImages ?? new List<ImageMetadata>();
-
-            // Apply search filter
-            if (!string.IsNullOrEmpty(searchFilter))
-            {
-                results = results.Where(img => 
-                    img.FileName.Contains(searchFilter, StringComparison.OrdinalIgnoreCase) ||
-                    (img.Keywords?.Contains(searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (img.Description?.Contains(searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (img.AiAnalysis?.Contains(searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (img.LocationName?.Contains(searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (img.Artist?.Contains(searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (img.CameraMake?.Contains(searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (img.CameraModel?.Contains(searchFilter, StringComparison.OrdinalIgnoreCase) ?? false)
-                ).ToList();
-            }
-
-            // Apply metadata type filter
-            if (!string.IsNullOrEmpty(selectedMetadataType))
-            {
-                results = selectedMetadataType switch
-                {
-                    "EXIF" => results.Where(img => !string.IsNullOrEmpty(img.ExifData)).ToList(),
-                    "XMP" => results.Where(img => !string.IsNullOrEmpty(img.XmpData)).ToList(),
-                    "AI" => results.Where(img => !string.IsNullOrEmpty(img.AiAnalysis)).ToList(),
-                    _ => results.ToList()
-                };
-            }
-
-            // Apply sorting
-            IEnumerable<ImageMetadata> sortedResults = sortBy switch
-            {
-                "FileName" => sortDescending 
-                    ? results.OrderByDescending(x => x.FileName) 
-                    : results.OrderBy(x => x.FileName),
-                "FileSize" => sortDescending 
-                    ? results.OrderByDescending(x => x.FileSizeBytes) 
-                    : results.OrderBy(x => x.FileSizeBytes),
-                "DateTaken" => sortDescending 
-                    ? results.OrderByDescending(x => x.DateTaken ?? DateTime.MinValue) 
-                    : results.OrderBy(x => x.DateTaken ?? DateTime.MinValue),
-                _ => sortDescending 
-                    ? results.OrderByDescending(x => x.CreatedAt) 
-                    : results.OrderBy(x => x.CreatedAt)
-            };
-
-            // Apply pagination
-            return sortedResults.Skip((currentPage - 1) * pageSize).Take(pageSize);
-        }
-    }
-
-    private async Task HandleFileSelection(InputFileChangeEventArgs e)
-    {
-        var files = e.GetMultipleFiles(MAX_FILES_UI).ToList();
-        
-        // Validate files
-        var validFiles = new List<IBrowserFile>();
-        var errors = new List<string>();
-        
-        foreach (var file in files)
-        {
-            if (IsValidImageFile(file))
-            {
-                if (file.Size <= MAX_FILE_SIZE_BYTES)
-                {
-                    validFiles.Add(file);
-                }
-                else
-                {
-                    errors.Add($"{file.Name}: File too large (max 50MB)");
-                }
-            }
-            else
-            {
-                errors.Add($"{file.Name}: Invalid file type");
-            }
-        }
-        
-        selectedFiles = validFiles;
-        
-        if (errors.Any())
-        {
-            await JSRuntime.InvokeVoidAsync("showToast", 
-                $"Some files were rejected: {string.Join(", ", errors)}", "warning");
-        }
-        
-        StateHasChanged();
-    }
-
-    private bool IsValidImageFile(IBrowserFile file)
-    {
-        var validTypes = new[] { 
-            "image/jpeg", "image/jpg", "image/png", "image/gif", 
-            "image/bmp", "image/webp", "image/svg+xml", "image/tiff", 
-            "image/x-icon", "image/avif", "image/heic", "image/heif" 
-        };
-        
-        var validExtensions = new[] { 
-            ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", 
-            ".svg", ".tiff", ".tif", ".ico", ".avif", ".heic", ".heif" 
-        };
-        
-        return validTypes.Contains(file.ContentType) || 
-               validExtensions.Any(ext => file.Name.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
-    }
-
-    private async Task TriggerFileInput()
-    {
-        if (fileInputElement?.Element != null)
-        {
-            await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('fileInput').click()");
-        }
-    }
-
-    private void HandleDragOver()
-    {
-        isDragOver = true;
-    }
-
-    private void HandleDragLeave()
-    {
-        isDragOver = false;
-    }
-
-    private async Task HandleDrop(DragEventArgs e)
-    {
-        isDragOver = false;
-        // Enhanced drag/drop handling can be implemented with JavaScript interop
-    }
-
-    private void RemoveFile(IBrowserFile file)
-    {
-        selectedFiles?.Remove(file);
-        StateHasChanged();
-    }
-
-    private async Task ProcessFiles()
-    {
-        if (selectedFiles?.Count > 0)
-        {
-            isProcessing = true;
-            processingProgress = 0;
-            currentFileIndex = 0;
-            totalFiles = selectedFiles.Count;
-            
-            try
-            {
-                var results = new List<ImageMetadata>();
-                
-                foreach (var file in selectedFiles)
-                {
-                    currentFileIndex++;
-                    processingProgress = (int)((double)currentFileIndex / totalFiles * 100);
-                    StateHasChanged();
-
-                    try
-                    {
-                        var result = await UploadService.ProcessImageAsync(file);
-                        if (result != null)
-                        {
-                            results.Add(result);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Create a failed result for tracking
-                        var failedResult = new ImageMetadata
-                        {
-                            FileName = file.Name,
-                            FileSizeBytes = file.Size,
-                            MimeType = file.ContentType,
-                            ProcessingStatus = "Failed",
-                            ErrorMessage = ex.Message
-                        };
-                        results.Add(failedResult);
-                    }
-                    
-                    await Task.Delay(100); // Small delay for UI responsiveness
-                }
-                
-                processedImages = results;
-                selectedFiles.Clear();
-                currentPage = 1; // Reset to first page
-                
-                await JSRuntime.InvokeVoidAsync("showToast", 
-                    $"Successfully processed {results.Count(r => r.ProcessingStatus == "Completed")} of {results.Count} images", 
-                    "success");
-            }
-            catch (Exception ex)
-            {
-                await JSRuntime.InvokeVoidAsync("showToast", 
-                    $"Error processing files: {ex.Message}", "danger");
-            }
-            finally
-            {
-                isProcessing = false;
-                processingProgress = 0;
-                StateHasChanged();
-            }
-        }
-    }
-
-    private async Task ExportToCsv()
-    {
-        if (processedImages?.Count > 0)
-        {
-            try
-            {
-                var csvData = await CsvExportService.ExportToCsvAsync(FilteredImages);
-                var fileName = $"image_metadata_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-                
-                await JSRuntime.InvokeVoidAsync("downloadFile", fileName, csvData);
-                await JSRuntime.InvokeVoidAsync("showToast", "CSV export completed", "success");
-            }
-            catch (Exception ex)
-            {
-                await JSRuntime.InvokeVoidAsync("showToast", 
-                    $"Error exporting CSV: {ex.Message}", "danger");
-            }
-        }
-    }
-
-    private void ClearResults()
-    {
-        processedImages?.Clear();
-        currentPage = 1;
-        StateHasChanged();
-    }
-
-    private void ToggleSortDirection()
-    {
-        sortDescending = !sortDescending;
-        currentPage = 1;
-        StateHasChanged();
-    }
-
-    private void ChangePage(int page)
-    {
-        if (page >= 1 && page <= totalPages)
-        {
-            currentPage = page;
-            StateHasChanged();
-        }
-    }
-
-    private void ShowMetadataDetails(ImageMetadata image)
-    {
-        selectedImageForModal = image;
-        StateHasChanged();
-    }
-
-    private async Task CopyMetadataToClipboard(ImageMetadata? image)
-    {
-        if (image == null) return;
-        
-        var metadata = $"Filename: {image.FileName}\n";
-        metadata += $"Size: {image.FileSize}\n";
-        metadata += $"Dimensions: {image.Dimensions}\n";
-        metadata += $"Date Taken: {image.DateTaken}\n";
-        metadata += $"Camera: {image.CameraMake} {image.CameraModel}\n";
-        metadata += $"Settings: {image.CameraSettings}\n";
-        metadata += $"Location: {image.LocationName}\n";
-        metadata += $"GPS: {image.GpsCoordinates}\n";
-        metadata += $"Keywords: {image.Keywords}\n";
-        metadata += $"AI Analysis: {image.AiAnalysis}\n";
-        
-        await JSRuntime.InvokeVoidAsync("copyToClipboard", metadata);
-    }
-
-    private string FormatFileSize(long bytes)
-    {
-        if (bytes < 1024) return $"{bytes} B";
-        if (bytes < 1024 * 1024) return $"{bytes / 1024:F1} KB";
-        if (bytes < 1024 * 1024 * 1024) return $"{bytes / (1024 * 1024):F1} MB";
-        return $"{bytes / (1024 * 1024 * 1024):F1} GB";
-    }
-
-    private string FormatMetadataForDisplay(string metadata)
-    {
-        if (string.IsNullOrEmpty(metadata)) return string.Empty;
-        
-        try
-        {
-            // Try to parse as JSON and format nicely
-            var jsonDoc = System.Text.Json.JsonDocument.Parse(metadata);
-            var formatted = System.Text.Json.JsonSerializer.Serialize(jsonDoc, new System.Text.Json.JsonSerializerOptions 
-            { 
-                WriteIndented = true 
-            });
-            return $"<pre>{System.Web.HttpUtility.HtmlEncode(formatted)}</pre>";
-        }
-        catch
-        {
-            // Fallback to simple line-by-line formatting
-            var lines = metadata.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            var formatted = lines.Select(line => 
-            {
-                if (line.Contains(':'))
-                {
-                    var parts = line.Split(':', 2);
-                    return $"<strong>{System.Web.HttpUtility.HtmlEncode(parts[0].Trim())}:</strong> {System.Web.HttpUtility.HtmlEncode(parts[1].Trim())}<br>";
-                }
-                return $"{System.Web.HttpUtility.HtmlEncode(line)}<br>";
-            });
-            
-            return string.Join("", formatted);
-        }
-    }
-}

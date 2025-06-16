@@ -1,4 +1,17 @@
-﻿// Function to download files (used for CSV export)
+﻿// app.js - Helper functions for Image Metadata Parser
+
+// Function to trigger file input click
+window.triggerFileInput = (elementId) => {
+    const fileInput = document.getElementById(elementId);
+    if (fileInput) {
+        fileInput.click();
+        return true;
+    }
+    console.error(`File input element with id '${elementId}' not found`);
+    return false;
+};
+
+// Function to download files (used for CSV export)
 window.downloadFile = (filename, content) => {
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -12,7 +25,7 @@ window.downloadFile = (filename, content) => {
     link.click();
     document.body.removeChild(link);
 
-    // Clean up the URL
+    // Clean up the URL object
     URL.revokeObjectURL(url);
 };
 
