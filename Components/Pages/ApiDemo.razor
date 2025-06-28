@@ -1,0 +1,36 @@
+﻿@page "/api-demo"
+
+<PageTitle>API Demo - Image Metadata Parser</PageTitle>
+
+<div class="container py-4">
+    <h1 class="display-4 text-center mb-4">Image Metadata Parser API</h1>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5>📚 Interactive API Documentation</h5>
+                    <p>Test all API endpoints with live data</p>
+                    <a href="/api-docs" class="btn btn-primary btn-lg">
+                        Open Swagger UI
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h6>Available Endpoints:</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <code>POST /api/images/analyze</code> - Analyze single image
+                    </li>
+                    <li class="list-group-item">
+                        <code>POST /api/images/analyze-batch</code> - Analyze multiple images
+                    </li>
+                    <li class="list-group-item">
+                        <code>GET /api/images/health</code> - API health check
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

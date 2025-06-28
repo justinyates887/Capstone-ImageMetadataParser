@@ -290,3 +290,109 @@ if (typeof module !== 'undefined' && module.exports) {
         processFilesWithProgress: window.processFilesWithProgress
     };
 }
+
+// Function to download files from URLs (for images)
+window.downloadFileFromUrl = async (filename, url) => {
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Get the content type from the response
+        const contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+
+        // Get the blob with proper content type
+        const blob = await response.blob();
+
+        // Create a new blob with explicit content type to ensure proper handling
+        const properBlob = new Blob([blob], { type: contentType });
+
+        const link = document.createElement('a');
+        const objectUrl = URL.createObjectURL(properBlob);
+
+        link.setAttribute('href', objectUrl);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Clean up the URL object
+        URL.revokeObjectURL(objectUrl);
+
+        console.log(`Successfully downloaded: ${filename}`);
+
+    } catch (error) {
+        console.error('Download failed:', error);
+        showToast(`Download failed: ${error.message}`, 'danger');
+    }
+};
+
+// Enhanced download function that handles both content and URLs
+window.downloadFile = (filename, contentOrUrl) => {
+    // Check if it's a URL (starts with http or /)
+    if (typeof contentOrUrl === 'string' && (contentOrUrl.startsWith('http') || contentOrUrl.startsWith('/'))) {
+        downloadFileFromUrl(filename, contentOrUrl);
+    } else {
+        // Original CSV download functionality
+        const blob = new Blob([contentOrUrl], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+    }
+};
+
+// Alternative direct download approach (fallback)
+window.downloadImageDirect = (filename, url) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.target = '_blank';
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    console.log(`Direct download initiated: ${filename}`);
+};
+
+// Function to get file info without downloading (optional - for future use)
+window.getFileInfo = async (url) => {
+    try {
+        const response = await fetch(url, { method: 'HEAD' });
+        return {
+            size: response.headers.get('Content-Length'),
+            type: response.headers.get('Content-Type'),
+            lastModified: response.headers.get('Last-Modified')
+        };
+    } catch (error) {
+        console.error('Failed to get file info:', error);
+        return null;
+    }
+};
+
+// Batch download function (for download all functionality)
+window.downloadMultipleFiles = async (files) => {
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        await downloadFileFromUrl(file.filename, file.url);
+
+        // Add delay between downloads to prevent browser throttling
+        if (i < files.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    }
+};

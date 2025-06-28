@@ -1,7 +1,278 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Image Metadata Parser - Extract, Analyze & Export Image Data</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-100 py-5">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="display-3 fw-bold text-white mb-4">
+                        Unlock the Hidden Data in Your Images
+                    </h1>
+                    <p class="lead text-white-50 mb-4">
+                        Extract comprehensive metadata from photos including EXIF data, GPS coordinates, camera settings, and more.
+                        Perfect for photographers, developers, and digital forensics professionals.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <a href="/upload" class="btn btn-primary btn-lg px-4 py-3">
+                            <i class="fas fa-cloud-upload-alt me-2"></i>Start Uploading
+                        </a>
+                        <a href="/gallery" class="btn btn-outline-light btn-lg px-4 py-3">
+                            <i class="fas fa-images me-2"></i>Try Sample Images
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="text-white fw-bold">15+</h3>
+                                    <small class="text-white-50">File Formats</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="text-white fw-bold">50MB</h3>
+                                    <small class="text-white-50">Max File Size</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="text-white fw-bold">API</h3>
+                                    <small class="text-white-50">Integration</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual">
+                    <div class="feature-preview">
+                        <div class="preview-card">
+                            <div class="card-header">
+                                <i class="fas fa-camera text-primary me-2"></i>
+                                <strong>Canon EOS 5D Mark IV</strong>
+                            </div>
+                            <div class="card-content">
+                                <div class="metadata-item">
+                                    <span class="label">Settings:</span>
+                                    <span class="value">f/2.8 • 1/125s • ISO 400 • 85mm</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="label">Location:</span>
+                                    <span class="value">40.7128°N, 74.0060°W</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="label">Date:</span>
+                                    <span class="value">2024-01-15 14:23:45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
+<div class="features-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Comprehensive Metadata Analysis</h2>
+                <p class="lead text-muted">
+                    Extract every piece of information stored in your image files with our advanced parsing engine
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h4>EXIF Data Extraction</h4>
+                    <p class="text-muted">
+                        Complete camera settings including aperture, shutter speed, ISO, focal length, and lens information.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Camera make and model</li>
+                        <li>Shooting parameters</li>
+                        <li>Lens specifications</li>
+                        <li>Date and time stamps</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h4>GPS & Location Data</h4>
+                    <p class="text-muted">
+                        Precise geographic information including coordinates, altitude, and location names.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Latitude and longitude</li>
+                        <li>Altitude information</li>
+                        <li>Location names</li>
+                        <li>Direction data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h4>Keywords & Descriptions</h4>
+                    <p class="text-muted">
+                        Extract keywords, descriptions, copyright information, and artist details.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Image keywords</li>
+                        <li>Copyright information</li>
+                        <li>Artist and creator data</li>
+                        <li>Image descriptions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h4>Multiple Export Formats</h4>
+                    <p class="text-muted">
+                        Export your metadata analysis in various formats for further processing.
+                    </p>
+                    <ul class="feature-list">
+                        <li>CSV spreadsheet export</li>
+                        <li>JSON data format</li>
+                        <li>Detailed reports</li>
+                        <li>Batch processing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h4>Developer API</h4>
+                    <p class="text-muted">
+                        Integrate metadata extraction into your applications with our REST API.
+                    </p>
+                    <ul class="feature-list">
+                        <li>RESTful API endpoints</li>
+                        <li>Batch processing support</li>
+                        <li>JSON response format</li>
+                        <li>Interactive documentation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4>Privacy & Security</h4>
+                    <p class="text-muted">
+                        Your images are processed securely and not permanently stored on our servers.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Secure processing</li>
+                        <li>No permanent storage</li>
+                        <li>Privacy focused</li>
+                        <li>Data protection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="supported-formats-section py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h3 class="fw-bold mb-3">Supported File Formats</h3>
+                <p class="text-muted">Process a wide variety of image formats with comprehensive metadata support</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="format-grid">
+                    <div class="format-item">
+                        <i class="fas fa-file-image"></i>
+                        <span>JPEG</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-image"></i>
+                        <span>PNG</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-image"></i>
+                        <span>TIFF</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-image"></i>
+                        <span>GIF</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-image"></i>
+                        <span>BMP</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-image"></i>
+                        <span>WebP</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-image"></i>
+                        <span>HEIC</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-image"></i>
+                        <span>AVIF</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cta-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3 class="display-6 fw-bold mb-3">Ready to Explore Your Images?</h3>
+                <p class="lead text-muted mb-4">
+                    Start extracting valuable metadata from your photos today. Upload your images or try our sample gallery.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="/upload" class="btn btn-primary btn-lg px-5 py-3">
+                        <i class="fas fa-cloud-upload-alt me-2"></i>Upload Images
+                    </a>
+                    <a href="/gallery" class="btn btn-outline-primary btn-lg px-5 py-3">
+                        <i class="fas fa-images me-2"></i>Sample Gallery
+                    </a>
+                    <a href="/api-docs" class="btn btn-outline-secondary btn-lg px-5 py-3" target="_blank">
+                        <i class="fas fa-code me-2"></i>API Docs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

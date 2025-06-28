@@ -1,0 +1,340 @@
+﻿@page "/gallery"
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Sample Gallery - Image Metadata Parser</PageTitle>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center mb-4">
+                <i class="fas fa-images me-3"></i>Sample Image Gallery
+            </h1>
+            <p class="lead text-center text-muted mb-5">
+                Download these sample images to test the metadata parser with different scenarios. These images are from 
+                <a>https://pixelpeeper.com/photos</a> and are being used for educational purposes only.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var image in SampleImages)
+        {
+            <div class="col-lg-4 col-md-6">
+                <div class="card gallery-card h-100 shadow-sm">
+                    <div class="position-relative">
+                        <img src="@image.ThumbnailUrl" class="card-img-top gallery-image" alt="@image.Title" />
+                        <div class="image-overlay">
+                            <button class="btn btn-light btn-download" @onclick="() => DownloadImage(image)">
+                                <i class="fas fa-download me-2"></i>Download
+                            </button>
+                        </div>
+                        <div class="image-badges">
+                            @foreach (var feature in image.Features)
+                            {
+                                <span class="badge bg-primary me-1">@feature</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@image.Title</h5>
+                        <p class="card-text text-muted">@image.Description</p>
+
+                        <div class="metadata-info mt-auto">
+                            <h6 class="fw-bold mb-2">What you'll find:</h6>
+                            <ul class="list-unstyled small">
+                                @foreach (var detail in image.MetadataDetails)
+                                {
+                                    <li><i class="fas fa-check text-success me-2"></i>@detail</li>
+                                }
+                            </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="file-info">
+                                <small class="text-muted">
+                                    <i class="fas fa-file me-1"></i>@image.FileSize
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-expand-arrows-alt me-1"></i>@image.Dimensions
+                                </small>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm" @onclick="() => DownloadImage(image)">
+                                <i class="fas fa-download me-1"></i>Get Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Bulk Download Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        <i class="fas fa-archive me-2"></i>Download All Images
+                    </h5>
+                    <p class="card-text">Get all 9 sample images in a single ZIP file for comprehensive testing</p>
+                    <button class="btn btn-primary btn-lg" @onclick="DownloadAllImages">
+                        <i class="fas fa-download me-2"></i>Download All (ZIP)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testing Tips -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Testing Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Upload Methods to Try:</h6>
+                            <ul>
+                                <li>Single image upload</li>
+                                <li>Batch upload (multiple images)</li>
+                                <li>Drag and drop from your downloads folder</li>
+                                <li>API testing via the API Documentation</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">What to Look For:</h6>
+                            <ul>
+                                <li>Camera make/model extraction</li>
+                                <li>GPS coordinates and location names</li>
+                                <li>Shooting settings (ISO, aperture, etc.)</li>
+                                <li>Date/time information</li>
+                                <li>Keywords and descriptions</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Pro Tip:</strong> Try uploading the same image multiple times to test deduplication,
+                        or mix these samples with your own photos to see how different cameras store metadata.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<SampleImage> SampleImages = new()
+    {
+        new SampleImage
+        {
+            Id = 1,
+            Title = "Flat Lay Photography",
+            Description = "Coffee, camera, flowers and book styled shot",
+            ThumbnailUrl = "/images/samples/image1.jpg",
+            DownloadUrl = "/images/samples/image1.jpg",
+            FileSize = "2.1 MB",
+            Dimensions = "1920×1280",
+            Features = new[] { "EXIF", "Camera Info", "Styled Shot" },
+            MetadataDetails = new[]
+            {
+                "Professional camera settings",
+                "Color profile and white balance",
+                "Depth of field information",
+                "Studio lighting data"
+            }
+        },
+        new SampleImage
+        {
+            Id = 2,
+            Title = "Wildlife Photography",
+            Description = "Squirrel on pavement - nature and wildlife shot",
+            ThumbnailUrl = "/images/samples/image2.jpg",
+            DownloadUrl = "/images/samples/image2.jpg",
+            FileSize = "1.8 MB",
+            Dimensions = "2048×1365",
+            Features = new[] { "Wildlife", "Natural Light", "EXIF" },
+            MetadataDetails = new[]
+            {
+                "Fast shutter speed for wildlife",
+                "Telephoto lens information",
+                "Natural lighting conditions",
+                "Focus and exposure details"
+            }
+        },
+        new SampleImage
+        {
+            Id = 3,
+            Title = "Architectural Photography",
+            Description = "Modern bridge and waterfront architecture",
+            ThumbnailUrl = "/images/samples/image3.jpg",
+            DownloadUrl = "/images/samples/image3.jpg",
+            FileSize = "1.2 MB",
+            Dimensions = "1440×1080",
+            Features = new[] { "Architecture", "GPS", "Wide Angle" },
+            MetadataDetails = new[]
+            {
+                "Wide-angle lens specifications",
+                "Location coordinates",
+                "Architectural composition data",
+                "Color grading information"
+            }
+        },
+        new SampleImage
+        {
+            Id = 4,
+            Title = "NYC Skyline - Day",
+            Description = "Manhattan cityscape with Empire State Building",
+            ThumbnailUrl = "/images/samples/image4.jpg",
+            DownloadUrl = "/images/samples/image4.jpg",
+            FileSize = "2.5 MB",
+            Dimensions = "2400×1600",
+            Features = new[] { "Cityscape", "GPS", "Travel" },
+            MetadataDetails = new[]
+            {
+                "New York City GPS coordinates",
+                "Urban photography settings",
+                "High detail capture",
+                "Atmospheric perspective data"
+            }
+        },
+        new SampleImage
+        {
+            Id = 5,
+            Title = "NYC Golden Hour",
+            Description = "Manhattan skyline during golden hour sunset",
+            ThumbnailUrl = "/images/samples/image5.jpg",
+            DownloadUrl = "/images/samples/image5.jpg",
+            FileSize = "1.9 MB",
+            Dimensions = "1800×1200",
+            Features = new[] { "Golden Hour", "Cityscape", "Color Grading" },
+            MetadataDetails = new[]
+            {
+                "Golden hour lighting data",
+                "Color temperature settings",
+                "Sunset timing information",
+                "Urban landscape composition"
+            }
+        },
+        new SampleImage
+        {
+            Id = 6,
+            Title = "European Waterfront",
+            Description = "City buildings reflected in calm water",
+            ThumbnailUrl = "/images/samples/image6.jpg",
+            DownloadUrl = "/images/samples/image6.jpg",
+            FileSize = "1.7 MB",
+            Dimensions = "2000×1333",
+            Features = new[] { "Reflections", "Architecture", "Europe" },
+            MetadataDetails = new[]
+            {
+                "European location data",
+                "Reflection photography techniques",
+                "Water surface conditions",
+                "Urban architectural details"
+            }
+        },
+        new SampleImage
+        {
+            Id = 7,
+            Title = "White House View",
+            Description = "The White House photographed through autumn trees",
+            ThumbnailUrl = "/images/samples/image7.jpg",
+            DownloadUrl = "/images/samples/image7.jpg",
+            FileSize = "2.3 MB",
+            Dimensions = "2200×1467",
+            Features = new[] { "Landmark", "Washington DC", "Historical" },
+            MetadataDetails = new[]
+            {
+                "Washington DC coordinates",
+                "Historical landmark data",
+                "Autumn season metadata",
+                "Political significance tags"
+            }
+        },
+        new SampleImage
+        {
+            Id = 8,
+            Title = "European Cityscape",
+            Description = "Panoramic view of historic European city architecture",
+            ThumbnailUrl = "/images/samples/image8.jpg",
+            DownloadUrl = "/images/samples/image8.jpg",
+            FileSize = "1.6 MB",
+            Dimensions = "1600×1200",
+            Features = new[] { "Panoramic", "Historic", "Architecture" },
+            MetadataDetails = new[]
+            {
+                "Panoramic capture settings",
+                "Historic architecture data",
+                "European city coordinates",
+                "Cultural heritage information"
+            }
+        },
+        new SampleImage
+        {
+            Id = 9,
+            Title = "Street Photography",
+            Description = "Worker with materials in front of classical architecture",
+            ThumbnailUrl = "/images/samples/image9.jpg",
+            DownloadUrl = "/images/samples/image9.jpg",
+            FileSize = "1.4 MB",
+            Dimensions = "1500×1000",
+            Features = new[] { "Street Photo", "Human Subject", "Architecture" },
+            MetadataDetails = new[]
+            {
+                "Street photography techniques",
+                "Human subject capture",
+                "Classical architecture context",
+                "Urban environment data"
+            }
+        }
+    };
+
+    private async Task DownloadImage(SampleImage image)
+    {
+        // Trigger download using JavaScript
+        await JSRuntime.InvokeVoidAsync("downloadFile",
+            $"{image.Title.Replace(" ", "_").ToLower()}.jpg",
+            image.DownloadUrl);
+
+        // Show notification
+        await JSRuntime.InvokeVoidAsync("showToast",
+            $"Downloading {image.Title}...", "success");
+    }
+
+    private async Task DownloadAllImages()
+    {
+        // Download each image individually (since we don't have ZIP functionality yet)
+        await JSRuntime.InvokeVoidAsync("showToast",
+            "Starting download of all sample images...", "info");
+
+        foreach (var image in SampleImages)
+        {
+            await Task.Delay(500); // Small delay between downloads
+            await JSRuntime.InvokeVoidAsync("downloadFile",
+                $"{image.Title.Replace(" ", "_").ToLower()}.jpg",
+                image.DownloadUrl);
+        }
+
+        await JSRuntime.InvokeVoidAsync("showToast",
+            "All sample images are being downloaded!", "success");
+    }
+
+    public class SampleImage
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string ThumbnailUrl { get; set; } = string.Empty;
+        public string DownloadUrl { get; set; } = string.Empty;
+        public string FileSize { get; set; } = string.Empty;
+        public string Dimensions { get; set; } = string.Empty;
+        public string[] Features { get; set; } = Array.Empty<string>();
+        public string[] MetadataDetails { get; set; } = Array.Empty<string>();
+    }
+}
